@@ -1,0 +1,35 @@
+CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+PROJECT (judypp)
+
+# Build flags
+IF (CMAKE_COMPILER_IS_GNUCC)
+    # Common options
+    ADD_DEFINITIONS (-pipe)
+    ADD_DEFINITIONS (-Wall)
+    ADD_DEFINITIONS (-Wreorder)
+
+#   Debug options to prevent buffer overflows (http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html)
+#   This adds some extra checking code
+    ADD_DEFINITIONS (-D_FORTIFY_SOURCE=2)
+    ADD_DEFINITIONS (-fstack-protector)
+ENDIF (CMAKE_COMPILER_IS_GNUCC)
+
+INCLUDE_DIRECTORIES (${CMAKE_SOURCE_DIR}/include)
+
+INCLUDE (FindPackageHandleStandardArgs)
+FIND_LIBRARY (LJUDY Judy)
+FIND_PATH (IJUDY Judy.h)
+SET (Judy_FIND_REQUIRED YES)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Judy DEFAULT_MSG LJUDY IJUDY)
+INCLUDE_DIRECTORIES (${IJUDY})
+# Enable errors ingoring in Judy
+ADD_DEFINITIONS (-DJUDYERROR_NOTEST)
+
+FIND_PACKAGE (Boost 1.41.0 COMPONENTS unit_test_framework REQUIRED)
+INCLUDE_DIRECTORIES (${Boost_INCLUDE_DIRS})
+ADD_DEFINITIONS (-DBOOST_TEST_DYN_LINK)
+
+IF (Boost_FOUND)
+    ENABLE_TESTING ()
+    ADD_SUBDIRECTORY (src/test)
+ENDIF (Boost_FOUND)
