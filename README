@@ -1,0 +1,9 @@
+It is C++ bindings for Judy library.
+
+It doesn't support error checking.
+
+It supports only integral types as keys and values (not even pointers).
+
+It hasn't iterators.
+
+It's not thread-safe (and will never be).
