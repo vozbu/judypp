@@ -4,6 +4,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 #include <Judy.h>
 
 namespace judypp
@@ -16,7 +17,7 @@ namespace judypp
 
     public:
         BOOST_STATIC_ASSERT(sizeof(Key) <= sizeof(Word_t));
-        BOOST_STATIC_ASSERT(boost::is_integral<Key>::value);
+        BOOST_STATIC_ASSERT(boost::is_integral<Key>::value || boost::is_pointer<Key>::value);
 
         typedef Key key_type;
         typedef Key value_type;
@@ -25,12 +26,12 @@ namespace judypp
         ~Set() { clear(); }
 
         //! returns true if new bit is set in result of call, otherwise returns false
-        bool set(key_type key) { return Judy1Set(&m_Array, key, PJE0); }
+        bool set(key_type key) { return Judy1Set(&m_Array, (Word_t)key, PJE0); }
 
         //! returns true if bit is unset in result of call, otherwise returns false
-        bool unset(key_type key) { return Judy1Unset(&m_Array, key, PJE0); }
+        bool unset(key_type key) { return Judy1Unset(&m_Array, (Word_t)key, PJE0); }
 
-        bool test(key_type key) const { return Judy1Test(m_Array, key, PJE0); }
+        bool test(key_type key) const { return Judy1Test(m_Array, (Word_t)key, PJE0); }
 
         size_t size() const { return Judy1Count(m_Array, 0, -1, PJE0); }
 

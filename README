@@ -2,7 +2,7 @@ It is C++ bindings for Judy library.
 
 It doesn't support error checking.
 
-It supports only integral types as keys and values (not even pointers).
+It supports only integral types and pointers as keys and values.
 
 It hasn't iterators.
 

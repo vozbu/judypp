@@ -4,6 +4,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_pointer.hpp>
 #include <Judy.h>
 #include <utility>
 
@@ -18,8 +19,8 @@ namespace judypp
     public:
         BOOST_STATIC_ASSERT(sizeof(Key) <= sizeof(Word_t));
         BOOST_STATIC_ASSERT(sizeof(T) <= sizeof(Word_t));
-        BOOST_STATIC_ASSERT(boost::is_integral<Key>::value);
-        BOOST_STATIC_ASSERT(boost::is_integral<T>::value);
+        BOOST_STATIC_ASSERT(boost::is_integral<Key>::value || boost::is_pointer<Key>::value);
+        BOOST_STATIC_ASSERT(boost::is_integral<T>::value || boost::is_pointer<T>::value);
 
         typedef Key key_type;
         typedef T mapped_type;
@@ -30,13 +31,13 @@ namespace judypp
 
         // own interface
         //! inserts value by key or searches for existing. \return reference to it
-        mapped_type& put(key_type key) { return *reinterpret_cast<mapped_type*>(JudyLIns(&m_Array, key, PJE0)); }
+        mapped_type& put(key_type key) { return *reinterpret_cast<mapped_type*>(JudyLIns(&m_Array, (Word_t)key, PJE0)); }
 
         //! searches for the element by key. \return pointer to it or NULL
-        const mapped_type* get(key_type key) const { return reinterpret_cast<mapped_type*>(JudyLGet(m_Array, key, PJE0)); }
+        const mapped_type* get(key_type key) const { return reinterpret_cast<mapped_type*>(JudyLGet(m_Array, (Word_t)key, PJE0)); }
         mapped_type* get(key_type key) { return const_cast<mapped_type*>(const_cast<const Map<Key,T>*>(this)->get(key)); }
 
-        bool del(key_type key) { return JudyLDel(&m_Array, key, PJE0); }
+        bool del(key_type key) { return JudyLDel(&m_Array, (Word_t)key, PJE0); }
 
         size_t size() const { return JudyLCount(m_Array, 0, -1, PJE0); }
 
