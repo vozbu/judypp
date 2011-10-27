@@ -12,6 +12,8 @@ IF (CMAKE_COMPILER_IS_GNUCC)
 #   This adds some extra checking code
     ADD_DEFINITIONS (-D_FORTIFY_SOURCE=2)
     ADD_DEFINITIONS (-fstack-protector)
+
+    ADD_DEFINITIONS (-std=c++0x)
 ENDIF (CMAKE_COMPILER_IS_GNUCC)
 
 INCLUDE_DIRECTORIES (${CMAKE_SOURCE_DIR}/include)

@@ -6,6 +6,7 @@
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #include <Judy.h>
+#include <judypp/set_iter.hpp>
 
 namespace judypp
 {
@@ -21,6 +22,8 @@ namespace judypp
 
         typedef Key key_type;
         typedef Key value_type;
+
+        typedef set_const_iterator<Key> const_iterator;
 
         Set() : m_Array(NULL) {}
         ~Set() { clear(); }
@@ -45,6 +48,10 @@ namespace judypp
 
         //! return count of erased keys (0 or 1)
         size_t erase(const key_type& k) { return unset(k); }
+        void erase(const_iterator p) { erase(*p); }
+
+        const_iterator begin() const { return const_iterator(m_Array); }
+        const_iterator end()   const { return const_iterator(); }
     };
 }// judypp
 

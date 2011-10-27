@@ -55,4 +55,36 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set, T, set_types_t)
     BOOST_CHECK_EQUAL(false, js.erase(T(100)));
 }
 
+BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
+{
+    judypp::Set<T> js;
+    BOOST_CHECK(js.begin() == js.end());
+
+    js.set(T(0));
+    auto it = js.begin();
+    BOOST_CHECK(it != js.end());
+    BOOST_CHECK_EQUAL(*it, T(0));
+    ++it;
+    BOOST_CHECK(it == js.end());
+
+    js.set(T(10));
+    js.set(T(29));
+    it = js.begin();
+    BOOST_CHECK(it != js.end());
+    BOOST_CHECK_EQUAL(*it, T(0));
+    it++;
+    BOOST_CHECK_EQUAL(*it, T(10));
+    ++it;
+    BOOST_CHECK_EQUAL(*it, T(29));
+    it--;
+    BOOST_CHECK_EQUAL(*it, T(10));
+    it--;
+    BOOST_CHECK_EQUAL(*it, T(0));
+    it++; it++; it++;
+    BOOST_CHECK(it == js.end());
+
+    js.erase(js.begin());
+    BOOST_CHECK_EQUAL(*js.begin(), T(10));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
