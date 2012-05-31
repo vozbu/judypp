@@ -22,6 +22,7 @@
 #include <judypp/set.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/test/unit_test.hpp>
+#include <limits>
 
 using namespace boost::unit_test;
 
@@ -88,6 +89,12 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
     ++it;
     BOOST_CHECK(it == js.end());
 
+    it = js.begin();
+    auto jit = it;
+    BOOST_CHECK(it++ == jit);
+    BOOST_CHECK(it != jit);
+    BOOST_CHECK(it == ++jit);
+
     js.set(T(10));
     js.set(T(29));
     it = js.begin();
@@ -106,6 +113,22 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
 
     js.erase(js.begin());
     BOOST_CHECK_EQUAL(*js.begin(), T(10));
+
+    js.clear();
+    js.set(T(1));
+    it = js.begin();
+    jit = it;
+    BOOST_CHECK(it++ == jit);
+    BOOST_CHECK(it != jit);
+    BOOST_CHECK(it == ++jit);
+
+    js.clear();
+    js.set(std::numeric_limits<T>::max());
+    it = js.begin();
+    jit = it;
+    BOOST_CHECK(it++ == jit);
+    BOOST_CHECK(it != jit);
+    BOOST_CHECK(it == ++jit);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

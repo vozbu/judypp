@@ -52,7 +52,12 @@ namespace judypp
 
         bool operator == (const set_const_iterator_base& r) const
         {
-            return (m_End && r.m_End) || (m_Array == r.m_Array && m_Index == r.m_Index);
+            if (m_End && r.m_End)
+                return true;
+            else if (m_End != r.m_End)
+                return false;
+            else
+                return m_Array == r.m_Array && m_Index == r.m_Index;
         }
 
         void operator++ ()
