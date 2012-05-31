@@ -35,6 +35,7 @@ namespace judypp
         bool m_End;
 
     public:
+        // like from begin() or end()
         set_const_iterator_base(Pcvoid_t aArray) : m_Array(aArray)
         {
             if (NULL != m_Array)
@@ -43,6 +44,20 @@ namespace judypp
                 // should not return 0 if m_Array is not NULL
                 Judy1First(m_Array, &m_Index, PJE0);
                 m_End = false;
+            }
+            else
+            {
+                m_End = true;
+            }
+        }
+
+        // like from find(key) - search for concrete element
+        set_const_iterator_base(Pcvoid_t aArray, Word_t aIndex) : m_Array(aArray)
+        {
+            if (NULL != m_Array)
+            {
+                m_Index = aIndex;
+                m_End = 0 == Judy1First(m_Array, &m_Index, PJE0) || m_Index != aIndex;
             }
             else
             {
@@ -93,6 +108,7 @@ namespace judypp
         typedef typename __iter_t::iterator_category    iterator_category;
 
         set_const_iterator(Pcvoid_t aArray = NULL) : _Mybase(aArray) {}
+        set_const_iterator(Pcvoid_t aArray, Key aKey) : _Mybase(aArray, (Word_t)aKey) {}
 
         _Mytype& operator++ ()
         {

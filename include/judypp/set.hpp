@@ -73,6 +73,8 @@ namespace judypp
 
         const_iterator begin() const { return const_iterator(m_Array); }
         const_iterator end()   const { return const_iterator(); }
+
+        const_iterator find(const key_type& k)  const { return const_iterator(m_Array, k); }
     };
 }// judypp
 

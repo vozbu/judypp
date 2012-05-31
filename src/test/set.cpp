@@ -79,9 +79,13 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set, T, set_types_t)
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
 {
+    // check for empty
     judypp::Set<T> js;
     BOOST_CHECK(js.begin() == js.end());
+    BOOST_CHECK(js.find(T(0)) == js.end());
+    BOOST_CHECK(js.find(T(10)) == js.end());
 
+    // check ++
     js.set(T(0));
     auto it = js.begin();
     BOOST_CHECK(it != js.end());
@@ -89,12 +93,14 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
     ++it;
     BOOST_CHECK(it == js.end());
 
+    // check two iterators
     it = js.begin();
     auto jit = it;
     BOOST_CHECK(it++ == jit);
     BOOST_CHECK(it != jit);
     BOOST_CHECK(it == ++jit);
 
+    // check more elements
     js.set(T(10));
     js.set(T(29));
     it = js.begin();
@@ -109,6 +115,21 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
     it--;
     BOOST_CHECK_EQUAL(*it, T(0));
     it++; it++; it++;
+    BOOST_CHECK(it == js.end());
+
+    // check find
+    it = js.find(T(0));
+    BOOST_CHECK(it != js.end());
+    BOOST_CHECK_EQUAL(*it, T(0));
+    it = js.find(T(10));
+    BOOST_CHECK(it != js.end());
+    BOOST_CHECK_EQUAL(*it, T(10));
+    it = js.find(T(29));
+    BOOST_CHECK(it != js.end());
+    BOOST_CHECK_EQUAL(*it, T(29));
+    // check iterators are ordered
+    BOOST_CHECK(++it == js.end());
+    it = js.find(T(15));
     BOOST_CHECK(it == js.end());
 
     js.erase(js.begin());
