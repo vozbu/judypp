@@ -68,13 +68,15 @@ std::ostream& operator << (std::ostream& str, time_diff t)
 }
 
 // Abstract set interface
+// template <typename T>
 // struct Set
 // {
-//      void insert(int);
+//      void insert(T);
 //      // we never test index more than maximum inserted (for maximum BitSet performance)
-//      bool test(int) const;
+//      bool test(T) const;
 // };
 
+template <typename T>
 class BitSet
 {
     uint8_t* m_arr;
@@ -84,7 +86,7 @@ public:
     BitSet() : m_arr(NULL), m_size(0) {}
     ~BitSet() { free(m_arr); }
 
-    void insert(int bit)
+    void insert(T bit)
     {
         int byte = bit >> 3;
         if (byte >= m_size)
@@ -96,61 +98,65 @@ public:
         m_arr[byte] |= (uint8_t)(1 << (bit & 7));
     }
 
-    bool test(int bit) const
+    bool test(T bit) const
     {
         return (m_arr[bit >> 2] >> (bit & 7)) & 1;
     }
 };
 
+template <typename T>
 class StdSet
 {
-    std::set<int> m_set;
+    std::set<T> m_set;
 public:
-    void insert(int bit) { m_set.insert(bit); }
-    bool test(int bit) const { return m_set.end() != m_set.find(bit); }
+    void insert(T bit) { m_set.insert(bit); }
+    bool test(T bit) const { return m_set.end() != m_set.find(bit); }
 };
 
+template <typename T>
 class StdUnorderedSet
 {
-    std::unordered_set<int> m_set;
+    std::unordered_set<T> m_set;
 public:
-    void insert(int bit) { m_set.insert(bit); }
-    bool test(int bit) const { return m_set.end() != m_set.find(bit); }
+    void insert(T bit) { m_set.insert(bit); }
+    bool test(T bit) const { return m_set.end() != m_set.find(bit); }
 };
 
 #ifdef HAVE_GOOGLE_SPARSE_HASH
+template <typename T>
 class DenseHashSet
 {
-    google::dense_hash_set<int> m_set;
+    google::dense_hash_set<T> m_set;
 public:
     DenseHashSet() { m_set.set_empty_key(0); }
-    void insert(int bit) { m_set.insert(bit); }
-    bool test(int bit) const { return m_set.end() != m_set.find(bit); }
+    void insert(T bit) { m_set.insert(bit); }
+    bool test(T bit) const { return m_set.end() != m_set.find(bit); }
 };
 #endif
 
+template <typename T>
 class VectorBoolSet
 {
     std::vector<bool> m_set;
 public:
-    void insert(int bit)
+    void insert(T bit)
     {
         if (static_cast<int>(m_set.size()) <= bit)
             m_set.resize(bit + 1);
         m_set[bit] = true;
     }
-    bool test(int bit) const { return m_set[bit]; }
+    bool test(T bit) const { return m_set[bit]; }
 };
 
 volatile bool b;
 
-template <typename T>
-void test_LimitedNumbers(const char* name, int count, int start, int step)
+template <template <typename T> class Cont, typename T>
+void test_LimitedNumbers(const char* name, T count, T start, T step)
 {
-    T t;
+    Cont<T> t;
     std::cout << name << " " << count << " filled in " << benchmark([&] ()
             {
-                for (int i = count; i > 0; --i)
+                for (T i = count; i > 0; --i)
                 {
                     t.insert(start);
                     start += step;
@@ -159,31 +165,45 @@ void test_LimitedNumbers(const char* name, int count, int start, int step)
 
     std::cout << name << " " << count << " all numbers checked in " << benchmark([&] ()
             {
-                for (int i = start - step; i > 0; --i)
+                for (T i = start - step; i > 0; --i)
                     b = t.test(i);
             }) << "\n";
 }
 
-void test_allLimitedNumers(int count, int start, int step)
+template <typename T>
+void test_allLimitedNumers(const char* type, T count, T start, T step)
 {
-    std::cout << "----\n";
-    test_LimitedNumbers<BitSet>("bitset", count, start, step);
-    test_LimitedNumbers<judypp::Set<int>>("judypp::set", count, start, step);
-    test_LimitedNumbers<StdSet>("std::set", count, start, step);
-    test_LimitedNumbers<StdUnorderedSet>("std::unordered_set", count, start, step);
+    std::cout << "\n" << type << "(" << count << ", " << start << ", " << step << ")\n";
+    test_LimitedNumbers<BitSet, T>("bitset", count, start, step);
+    test_LimitedNumbers<judypp::Set, T>("judypp::set", count, start, step);
+    test_LimitedNumbers<StdSet, T>("std::set", count, start, step);
+    test_LimitedNumbers<StdUnorderedSet, T>("std::unordered_set", count, start, step);
 #ifdef HAVE_GOOGLE_SPARSE_HASH
-    test_LimitedNumbers<DenseHashSet>("google::dense_hash_set", count, start, step);
+    test_LimitedNumbers<DenseHashSet, T>("google::dense_hash_set", count, start, step);
 #endif
-    test_LimitedNumbers<VectorBoolSet>("std::vector<bool>", count, start, step);
+    test_LimitedNumbers<VectorBoolSet, T>("std::vector<bool>", count, start, step);
 }
 
 int main()
 {
-    test_allLimitedNumers(1000, 10, 1);
-    test_allLimitedNumers(1000, 10, 3);
-    test_allLimitedNumers(10000, 10, 1);
-    test_allLimitedNumers(10000, 10, 3);
-    test_allLimitedNumers(100000, 10, 1);
-    test_allLimitedNumers(100000, 10, 3);
+    test_allLimitedNumers<int64_t>("int64_t", 1000, 10, 1);
+    test_allLimitedNumers<int64_t>("int64_t", 1000, 10, 3);
+    test_allLimitedNumers<int64_t>("int64_t", 10000, 10, 1);
+    test_allLimitedNumers<int64_t>("int64_t", 10000, 10, 3);
+    test_allLimitedNumers<int64_t>("int64_t", 100000, 10, 1);
+    test_allLimitedNumers<int64_t>("int64_t", 100000, 10, 3);
+
+    test_allLimitedNumers<int32_t>("int32_t", 1000, 10, 1);
+    test_allLimitedNumers<int32_t>("int32_t", 1000, 10, 3);
+    test_allLimitedNumers<int32_t>("int32_t", 10000, 10, 1);
+    test_allLimitedNumers<int32_t>("int32_t", 10000, 10, 3);
+    test_allLimitedNumers<int32_t>("int32_t", 100000, 10, 1);
+    test_allLimitedNumers<int32_t>("int32_t", 100000, 10, 3);
+
+    test_allLimitedNumers<int16_t>("int16_t", 1000, 10, 1);
+    test_allLimitedNumers<int16_t>("int16_t", 1000, 10, 3);
+    test_allLimitedNumers<int16_t>("int16_t", 10000, 10, 1);
+    test_allLimitedNumers<int16_t>("int16_t", 10000, 10, 3);
+
     return 0;
 }
