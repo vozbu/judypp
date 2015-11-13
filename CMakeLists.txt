@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 PROJECT (judypp)
 
+INCLUDE (CheckCXXSymbolExists)
+
 # Build flags
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
  OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -11,7 +13,12 @@ IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 
 #   Debug options to prevent buffer overflows (http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html)
 #   This adds some extra checking code
-    ADD_DEFINITIONS (-D_FORTIFY_SOURCE=2)
+    CHECK_CXX_SYMBOL_EXISTS (_FORTIFY_SOURCE "stddef.h" FORTIFY_SOURCE_IS_SET)
+    IF (NOT FORTIFY_SOURCE_IS_SET)
+        # If it is already set by default (like in Gentoo) we will get a lot of warnings about redifinition
+        ADD_DEFINITIONS (-D_FORTIFY_SOURCE=2)
+    ENDIF()
+
     ADD_DEFINITIONS (-fstack-protector)
 
     ADD_DEFINITIONS (-std=c++14)
