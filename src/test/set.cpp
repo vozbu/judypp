@@ -152,4 +152,41 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_set_iters, T, set_types_t)
     BOOST_CHECK(it == ++jit);
 }
 
+BOOST_AUTO_TEST_CASE(test_copy_ctor)
+{
+    int NUM_ELEMENTS = 20000000;
+    judypp::Set<int> js;
+    for (int i = 0; i < NUM_ELEMENTS; ++i)
+        js.insert(2*i+2000000000);
+
+    BOOST_CHECK_EQUAL(js.size(), NUM_ELEMENTS);
+
+    auto js_copy(js);
+    BOOST_CHECK_EQUAL(js_copy.size(), NUM_ELEMENTS);
+
+    int index = 0;
+    std::for_each(js_copy.begin(), js_copy.end(), [&index](int x) {++index;});
+
+    BOOST_CHECK_EQUAL(index, NUM_ELEMENTS);
+}
+
+BOOST_AUTO_TEST_CASE(test_copy_optor)
+{
+    int NUM_ELEMENTS = 20000000;
+    judypp::Set<int> js;
+    for (int i = 0; i < NUM_ELEMENTS; ++i)
+        js.insert(2*i+2000000000);
+
+    BOOST_CHECK_EQUAL(js.size(), NUM_ELEMENTS);
+
+    judypp::Set<int> js_copy;
+    js_copy = js;
+    BOOST_CHECK_EQUAL(js_copy.size(), NUM_ELEMENTS);
+
+    int index = 0;
+    std::for_each(js_copy.begin(), js_copy.end(), [&index](int x) {++index;});
+
+    BOOST_CHECK_EQUAL(index, NUM_ELEMENTS);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
