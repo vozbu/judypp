@@ -22,7 +22,6 @@
 #ifndef __JUDYPP_SET_HPP__
 #define __JUDYPP_SET_HPP__
 
-#include <boost/noncopyable.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_pointer.hpp>
@@ -33,7 +32,7 @@ namespace judypp
 {
     //! Key must be an integral type with sizeof(Key) <= sizeof(Word_t)
     template <typename Key>
-    class Set : boost::noncopyable
+    class Set
     {
         Pvoid_t m_Array;
 
@@ -47,7 +46,17 @@ namespace judypp
         typedef set_const_iterator<Key> const_iterator;
 
         Set() : m_Array(NULL) {}
+        Set(const Set& aSet) : Set() { for (auto x : aSet) set(x); }
         ~Set() { clear(); }
+        Set& operator=(const Set& aSet)
+        {
+            if (&aSet != this)
+            {
+                clear();
+                for (auto x : aSet) set(x);
+            }
+            return *this;
+        }
 
         //! returns true if new bit is set in result of call, otherwise returns false
         bool set(key_type key) { return Judy1Set(&m_Array, (Word_t)key, PJE0); }

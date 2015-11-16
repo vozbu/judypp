@@ -13,7 +13,7 @@ IF (CMAKE_COMPILER_IS_GNUCC)
     ADD_DEFINITIONS (-D_FORTIFY_SOURCE=2)
     ADD_DEFINITIONS (-fstack-protector)
 
-    ADD_DEFINITIONS (-std=c++0x)
+    ADD_DEFINITIONS (-std=c++14)
 
 #   Enable errors ingoring in Judy
     ADD_DEFINITIONS (-DJUDYERROR_NOTEST)
