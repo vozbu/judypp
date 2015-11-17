@@ -26,9 +26,9 @@
 
 #include <config.h>
 
+#include <chrono>
 #include <stdio.h>
 #include <iostream>
-#include <time.h>
 #include <string.h>
 
 #include <judypp/set.hpp>
@@ -39,32 +39,13 @@
 #   include <sparsehash/dense_hash_set>
 #endif
 
-struct time_diff
-{
-    int64_t value;
-};
-
-// return nanoseconds
 template <class F>
-time_diff benchmark(F f)
+std::chrono::microseconds benchmark(F f)
 {
-    timespec start, stop;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    const auto start = std::chrono::high_resolution_clock::now();
     f();
-    clock_gettime(CLOCK_MONOTONIC_RAW, &stop);
-    return time_diff {(stop.tv_sec - start.tv_sec) * 1000000000 + (stop.tv_nsec - start.tv_nsec)};
-}
-
-const char* output_time_diff(const time_diff& time)
-{
-    static __thread char buf[64];
-    snprintf(buf, 64, "%ld mcs", time.value / 1000);
-    return buf;
-}
-
-std::ostream& operator << (std::ostream& str, time_diff t)
-{
-    return str << output_time_diff(t);
+    const auto stop = std::chrono::high_resolution_clock::now();
+    return std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 }
 
 // Abstract set interface
@@ -161,13 +142,13 @@ void test_LimitedNumbers(const char* name, T count, T start, T step)
                     t.insert(start);
                     start += step;
                 }
-            }) << "\n";
+            }).count() << " mcs\n";
 
     std::cout << name << " " << count << " all numbers checked in " << benchmark([&] ()
             {
                 for (T i = start - step; i > 0; --i)
                     b = t.test(i);
-            }) << "\n";
+            }).count() << " mcs\n";
 }
 
 template <typename T>
