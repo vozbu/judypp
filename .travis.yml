@@ -1,0 +1,29 @@
+language: cpp
+
+addons:
+    apt:
+        sources:
+            - boost-latest
+            - ubuntu-toolchain-r-test
+        packages:
+            - gcc-4.9
+            - g++-4.9
+            - libboost1.55-all-dev
+            - libjudy-dev
+
+compiler:
+    - g++
+
+before_install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9"; fi
+
+before_script:
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=RELEASE
+
+script:
+    - make
+
+after_success:
+    - make test
