@@ -60,11 +60,20 @@ std::chrono::microseconds benchmark(F f)
 template <typename T>
 class BitSet
 {
-    uint8_t* m_arr;
-    int m_size;
+    uint8_t* m_arr = nullptr;
+    int m_size = 0;
 
 public:
-    BitSet() : m_arr(NULL), m_size(0) {}
+    BitSet() = default;
+    BitSet(const BitSet& r) : m_size(r.m_size)
+    {
+        if (0 != m_size)
+        {
+            m_arr = (uint8_t*)malloc(m_size);
+            memcpy(m_arr, r.m_arr, m_size);
+        }
+    }
+    BitSet& operator= (const BitSet& r) = delete;
     ~BitSet() { free(m_arr); }
 
     void insert(T bit)
@@ -149,20 +158,39 @@ void test_LimitedNumbers(const char* name, T count, T start, T step)
                 for (T i = start - step; i > 0; --i)
                     b = t.test(i);
             }).count() << " mcs\n";
+
+    Cont<T>* p = nullptr;
+
+    std::cout << name << " " << count << " copied in " << benchmark([&] ()
+            {
+                p = new Cont<T>(t);
+            }).count() << " mcs\n";
+
+    std::cout << name << " " << count << " destroyed in " << benchmark([&] ()
+            {
+                delete p;
+            }).count() << " mcs\n";
 }
 
 template <typename T>
 void test_allLimitedNumers(const char* type, T count, T start, T step)
 {
-    std::cout << "\n" << type << "(" << count << ", " << start << ", " << step << ")\n";
+    std::cout << "\n===== " << type << "(" << count << ", " << start << ", " << step << ") =====\n";
+    std::cout <<"\n";
     test_LimitedNumbers<BitSet, T>("bitset", count, start, step);
+    std::cout <<"\n";
     test_LimitedNumbers<judypp::Set, T>("judypp::set", count, start, step);
+    std::cout <<"\n";
     test_LimitedNumbers<StdSet, T>("std::set", count, start, step);
+    std::cout <<"\n";
     test_LimitedNumbers<StdUnorderedSet, T>("std::unordered_set", count, start, step);
+    std::cout <<"\n";
 #ifdef HAVE_GOOGLE_SPARSE_HASH
     test_LimitedNumbers<DenseHashSet, T>("google::dense_hash_set", count, start, step);
+    std::cout <<"\n";
 #endif
     test_LimitedNumbers<VectorBoolSet, T>("std::vector<bool>", count, start, step);
+    std::cout <<"\n";
 }
 
 int main()
