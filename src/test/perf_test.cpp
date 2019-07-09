@@ -24,8 +24,6 @@
  * test for inserted values.
  */
 
-#include <config.h>
-
 #include <chrono>
 #include <stdio.h>
 #include <iostream>
