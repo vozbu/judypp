@@ -1,21 +1,16 @@
 language: cpp
 
+dist: xenial
 addons:
     apt:
         sources:
-            - boost-latest
-            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:mhier/libboost-latest'
         packages:
-            - gcc-4.9
-            - g++-4.9
-            - libboost1.55-all-dev
+            - boost1.67
             - libjudy-dev
 
 compiler:
     - g++
-
-before_install:
-    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9"; fi
 
 before_script:
     - mkdir build
@@ -23,7 +18,7 @@ before_script:
     - cmake .. -DCMAKE_BUILD_TYPE=RELEASE
 
 script:
-    - make
+    - VERBOSE=ON make
 
 after_success:
     - make test
